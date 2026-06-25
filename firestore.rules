@@ -1,0 +1,115 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Global Security Primitives
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    function incoming() { 
+      return request.resource.data; 
+    }
+    function existing() { 
+      return resource.data; 
+    }
+    function isSignedIn() { 
+      return request.auth != null; 
+    }
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email_verified == true && request.auth.token.email == 'leoalfredo252@gmail.com';
+    }
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // 1. User Profiles Collection Rules
+    match /users/{userId} {
+      function isValidUserProfile(data) {
+        return data.keys().hasAll(['id', 'name', 'email'])
+          && data.id is string && data.id.size() <= 128
+          && data.name is string && data.name.size() <= 100
+          && data.email is string && data.email.size() <= 100
+          && (!('phone' in data) || data.phone is string)
+          && (!('classLevel' in data) || data.classLevel is string)
+          && (!('plan' in data) || data.plan is string)
+          && (!('subscriptionStatus' in data) || data.subscriptionStatus is string)
+          && (!('joinedDate' in data) || data.joinedDate is string)
+          && (!('avatar' in data) || data.avatar is string);
+      }
+
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if (isOwner(userId) && isValidUserProfile(incoming())) || isAdmin();
+      allow update: if (isOwner(userId) && isValidUserProfile(incoming()) && incoming().email == existing().email) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 2. Books Catalog Rules
+    match /books/{bookId} {
+      function isValidBook(data) {
+        return data.keys().hasAll(['id', 'title', 'author', 'classLevel'])
+          && data.id is string && data.id.size() <= 128
+          && data.title is string && data.title.size() <= 200
+          && data.author is string && data.author.size() <= 200
+          && data.classLevel is string && data.classLevel.size() <= 100
+          && (!('subject' in data) || (data.subject is string && data.subject.size() <= 100))
+          && (!('coverBg' in data) || (data.coverBg is string && data.coverBg.size() <= 100))
+          && (!('accentColor' in data) || (data.accentColor is string && data.accentColor.size() <= 50))
+          && (!('summary' in data) || (data.summary is string && data.summary.size() <= 1000))
+          && (!('isPremium' in data) || data.isPremium is bool)
+          && (!('rating' in data) || data.rating is number)
+          && (!('downloads' in data) || data.downloads is number)
+          && (!('isbn' in data) || (data.isbn is string && data.isbn.size() <= 100))
+          && (!('publisher' in data) || (data.publisher is string && data.publisher.size() <= 200))
+          && (!('year' in data) || data.year is int);
+      }
+
+      allow read: if true; // Open catalog for reading
+      allow create: if isAdmin() && isValidBook(incoming());
+      allow update: if isAdmin() && isValidBook(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 3. Payment Records Rules
+    match /payments/{paymentId} {
+      function isValidPaymentRecord(data) {
+        return data.keys().hasAll(['id', 'planName', 'amount', 'status', 'reference'])
+          && data.id is string && data.id.size() <= 128
+          && data.planName is string && data.planName.size() <= 100
+          && data.amount is number
+          && data.status is string && data.status.size() <= 50
+          && data.reference is string && data.reference.size() <= 100
+          && (!('userId' in data) || (data.userId is string && data.userId.size() <= 128))
+          && (!('date' in data) || (data.date is string && data.date.size() <= 50))
+          && (!('method' in data) || (data.method is string && data.method.size() <= 100));
+      }
+
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidPaymentRecord(incoming()) && (incoming().userId == request.auth.uid || isAdmin());
+      allow update: if isSignedIn() && isValidPaymentRecord(incoming()) && (existing().userId == request.auth.uid || isAdmin()) && (incoming().diff(existing()).affectedKeys().hasOnly(['status']) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // 4. Audit Logs Rules (Immutable)
+    match /audit_logs/{logId} {
+      function isValidAuditLog(data) {
+        return data.keys().hasAll(['id', 'action', 'actorEmail', 'details', 'timestamp'])
+          && data.id is string && data.id.size() <= 128
+          && data.action is string && data.action.size() <= 200
+          && data.actorEmail is string && data.actorEmail.size() <= 150
+          && data.details is string && data.details.size() <= 1000
+          && data.timestamp is string && data.timestamp.size() <= 50
+          && (!('actorUid' in data) || (data.actorUid is string && data.actorUid.size() <= 128))
+          && (!('targetId' in data) || (data.targetId is string && data.targetId.size() <= 128));
+      }
+
+      allow read: if isAdmin();
+      allow create: if isValidAuditLog(incoming());
+      allow update, delete: if false; // Strict immutability for tamper-proof auditing
+    }
+  }
+}

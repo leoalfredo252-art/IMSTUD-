@@ -9,9 +9,10 @@ interface LogoProps {
   variant?: 'horizontal' | 'vertical' | 'icon' | 'monochrome';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showSlogan?: boolean;
+  theme?: 'dark' | 'light' | 'auto';
 }
 
-export default function Logo({ variant = 'horizontal', size = 'md', showSlogan = false }: LogoProps) {
+export default function Logo({ variant = 'horizontal', size = 'md', showSlogan = false, theme = 'auto' }: LogoProps) {
   // Size dimensions
   const dimensions = {
     sm: { icon: 32, text: 'text-lg', slogan: 'text-[9px]' },
@@ -24,10 +25,8 @@ export default function Logo({ variant = 'horizontal', size = 'md', showSlogan =
 
   // SVG Logo Icon
   const LogoIcon = ({ isMonochrome = false }) => {
-    // Colors
-    const primaryColor = isMonochrome ? 'currentColor' : '#1e3a8a'; // Deep Blue (Azul Escuro)
-    const secondaryColor = isMonochrome ? 'currentColor' : '#d97706'; // Gold (Dourado)
-    const bookColor = isMonochrome ? 'currentColor' : '#2563eb'; // Support blue
+    // Colors and Gradients
+    const primaryColor = isMonochrome ? 'currentColor' : '#0f172a'; // Deep Slate/Blue
     const whiteColor = '#ffffff';
 
     return (
@@ -39,123 +38,128 @@ export default function Logo({ variant = 'horizontal', size = 'md', showSlogan =
         xmlns="http://www.w3.org/2000/svg"
         className="transition-all duration-300"
       >
+        <defs>
+          {/* Official Premium Gold Gradient */}
+          <linearGradient id="imstudGold" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#b8832e" />
+            <stop offset="30%" stopColor="#dfac42" />
+            <stop offset="70%" stopColor="#fbecaa" />
+            <stop offset="100%" stopColor="#d97706" />
+          </linearGradient>
+          
+          {/* Subtle drop shadow for depth */}
+          <filter id="logoShadow" x="-10%" y="-10%" width="125%" height="125%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.3" floodColor="#000000" />
+          </filter>
+        </defs>
+
         {/* Background rounded container for APP ICON style */}
         {variant === 'icon' && (
           <rect width="120" height="120" rx="28" fill={primaryColor} />
         )}
 
-        {/* 1. OPEN BOOK INTEGRATED - base of learning and the lettrs */}
-        <path
-          d="M25 82C38 78 50 82 60 88C70 82 82 78 95 82V42C82 38 70 42 60 48C50 42 38 38 25 42V82Z"
-          fill={variant === 'icon' ? '#1d4ed8' : '#f8fafc'}
-          stroke={variant === 'icon' ? secondaryColor : primaryColor}
-          strokeWidth="4"
-          strokeLinejoin="round"
-        />
-        
-        {/* Pages Lines inside the Book */}
-        <path
-          d="M32 50C40 48 48 50 54 53"
-          stroke={variant === 'icon' ? '#93c5fd' : '#94a3b8'}
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M32 60C40 58 48 60 54 63"
-          stroke={variant === 'icon' ? '#93c5fd' : '#94a3b8'}
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M32 70C40 68 48 70 54 73"
-          stroke={variant === 'icon' ? '#93c5fd' : '#94a3b8'}
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        
-        <path
-          d="M88 50C80 48 72 50 66 53"
-          stroke={variant === 'icon' ? '#93c5fd' : '#94a3b8'}
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M88 60C80 58 72 60 66 63"
-          stroke={variant === 'icon' ? '#93c5fd' : '#94a3b8'}
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M88 70C80 68 72 70 66 73"
-          stroke={variant === 'icon' ? '#93c5fd' : '#94a3b8'}
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+        <g filter="url(#logoShadow)">
+          {/* 1. GRADUATION CAP (CHAPÉU ACADÉMICO) */}
+          {/* Curved Mortarboard Diamond Cap */}
+          <path
+            d="M60 14 C73 19 87 23 95 28 C87 33 73 37 60 42 C47 37 33 33 25 28 C33 23 47 19 60 14 Z"
+            fill="url(#imstudGold)"
+          />
+          {/* Cap Under-ring/Base */}
+          <path
+            d="M42 34.5 V40 C42 46 78 46 78 40 V34.5"
+            stroke="url(#imstudGold)"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+          {/* Cap Tassel (Pendente da Borla de Alta Definição) */}
+          {/* Tassel Cord */}
+          <path
+            d="M27 28.5 L27 41"
+            stroke="url(#imstudGold)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+          {/* Tassel Bead/Knot */}
+          <circle cx="27" cy="42" r="2" fill="url(#imstudGold)" />
+          {/* Tassel Fringe/Body */}
+          <path
+            d="M25.5 43.5 L24 51.5 C24 53 30 53 30 51.5 L28.5 43.5 Z"
+            fill="url(#imstudGold)"
+          />
 
-        {/* 2. THE MAIN "IM" LETTERS - integrated in foreground */}
-        {/* Letter I */}
-        <path
-          d="M42 42V78"
-          stroke={variant === 'icon' ? whiteColor : primaryColor}
-          strokeWidth="8"
-          strokeLinecap="round"
-        />
-        <path
-          d="M37 42H47M37 78H47"
-          stroke={variant === 'icon' ? whiteColor : primaryColor}
-          strokeWidth="6"
-          strokeLinecap="round"
-        />
+          {/* 2. THE MONOGRAM LETTERS 'i' AND 'M' (UNIFIED BRAND SYMBOL) */}
+          {/* Letter 'i' (Stem / Student Body) */}
+          <path
+            d="M42 54 V82"
+            stroke="url(#imstudGold)"
+            strokeWidth="8.5"
+            strokeLinecap="butt"
+          />
+          {/* Letter 'i' Dot */}
+          <circle cx="42" cy="43" r="5.5" fill="url(#imstudGold)" />
 
-        {/* Letter M */}
-        <path
-          d="M58 78V42L72 60L86 42V78"
-          stroke={variant === 'icon' ? whiteColor : primaryColor}
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+          {/* Letter 'M' (Unified & sharp, branching directly from 'i' stem) */}
+          <path
+            d="M45 68 L63 54 L74.5 70 L86 54 V82"
+            stroke="url(#imstudGold)"
+            strokeWidth="8.5"
+            strokeLinecap="butt"
+            strokeLinejoin="miter"
+          />
 
-        {/* 3. SUBTLE GRADUATION CAP - sitting elegantly atop the letter "I" as a diamond/hat */}
-        {/* Cap diamond */}
-        <path
-          d="M42 22L54 27L42 32L30 27L42 22Z"
-          fill={secondaryColor}
-          stroke={variant === 'icon' ? whiteColor : primaryColor}
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-        {/* Cap tassel */}
-        <path
-          d="M54 27V34C54 36 52 38 52 38"
-          stroke={secondaryColor}
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        
-        {/* Golden Central Ribbon / Book Separator */}
-        <path
-          d="M60 48V92"
-          stroke={secondaryColor}
-          strokeWidth="4"
-          strokeLinecap="round"
-        />
-        
-        {/* Spark of growth / innovation */}
-        <path
-          d="M60 88L60 98"
-          stroke={secondaryColor}
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+          {/* 3. OPEN BOOK BASE (LIVRO ABERTO) */}
+          {/* Top thick page arcs (White/silver in dark theme, Slate in light theme) */}
+          <path
+            d="M20 89 C38 82 50 88 60 92 C70 88 82 82 100 89"
+            stroke={isMonochrome ? 'currentColor' : (theme === 'light' ? '#475569' : '#ffffff')}
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+          {/* Bottom parallel page arcs and binding */}
+          <path
+            d="M20 95 C38 88 50 94 60 98 C70 94 82 88 100 95"
+            stroke="url(#imstudGold)"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+          {/* Book center spine point */}
+          <path
+            d="M60 92 V98"
+            stroke="url(#imstudGold)"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+        </g>
       </svg>
     );
   };
 
   const isMonochrome = variant === 'monochrome';
-  const textColorClass = isMonochrome ? 'text-current' : 'text-slate-900';
-  const brandBlueClass = isMonochrome ? 'text-current' : 'text-blue-900';
-  const brandGoldClass = isMonochrome ? 'text-current' : 'text-amber-600';
+  
+  // Decide text colors based on the theme prop
+  let textColorClass = 'text-slate-900 dark:text-white';
+  let brandTextClass = 'text-slate-900 dark:text-white';
+  
+  if (isMonochrome) {
+    textColorClass = 'text-current';
+    brandTextClass = 'text-current';
+  } else if (theme === 'dark') {
+    textColorClass = 'text-white';
+    brandTextClass = 'text-white';
+  } else if (theme === 'light') {
+    textColorClass = 'text-slate-900';
+    brandTextClass = 'text-slate-900';
+  }
+
+  // Premium Gold Gradient for "IM" and solid Gold for Slogan
+  const brandGoldClass = isMonochrome 
+    ? 'text-current' 
+    : 'bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 bg-clip-text text-transparent inline-block';
+
+  const sloganColorClass = isMonochrome
+    ? 'text-slate-500'
+    : 'text-amber-500/90 font-bold';
 
   if (variant === 'icon') {
     return (
@@ -172,13 +176,13 @@ export default function Logo({ variant = 'horizontal', size = 'md', showSlogan =
           <LogoIcon isMonochrome={isMonochrome} />
         </div>
         <div className="flex flex-col items-center">
-          <h1 className={`${currentSize.text} font-bold tracking-wider ${textColorClass}`}>
-            <span className={brandBlueClass}>IM</span>
-            <span className={brandGoldClass}>STUD</span>
+          <h1 className={`${currentSize.text} font-bold tracking-wider ${textColorClass} flex items-center justify-center`}>
+            <span className={brandGoldClass}>IM</span>
+            <span className={brandTextClass}>STUD</span>
           </h1>
           {showSlogan && (
-            <p className={`${currentSize.slogan} mt-0.5 uppercase tracking-widest font-semibold text-slate-500`}>
-              Innovation Through Learning
+            <p className={`${currentSize.slogan} mt-0.5 uppercase tracking-widest ${sloganColorClass}`}>
+              Innovation Through Learning.
             </p>
           )}
         </div>
@@ -194,12 +198,12 @@ export default function Logo({ variant = 'horizontal', size = 'md', showSlogan =
       </div>
       <div className="flex flex-col justify-center leading-none">
         <h1 className={`${currentSize.text} font-bold tracking-wider ${textColorClass} flex items-center`}>
-          <span className={brandBlueClass}>IM</span>
-          <span className={brandGoldClass}>STUD</span>
+          <span className={brandGoldClass}>IM</span>
+          <span className={brandTextClass}>STUD</span>
         </h1>
         {showSlogan && (
-          <p className={`${currentSize.slogan} mt-1 uppercase tracking-widest font-bold text-slate-500`}>
-            Innovation Through Learning
+          <p className={`${currentSize.slogan} mt-1 uppercase tracking-widest ${sloganColorClass}`}>
+            Innovation Through Learning.
           </p>
         )}
       </div>

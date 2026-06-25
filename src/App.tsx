@@ -27,6 +27,9 @@ import AppFlow from './components/AppFlow';
 import AdminPanel from './components/AdminPanel';
 import StrategyDesk from './components/StrategyDesk';
 
+import { auth, db, handleFirestoreError, OperationType } from './lib/firebase';
+import { doc, updateDoc, setDoc, deleteDoc } from 'firebase/firestore';
+
 export default function App() {
   // Global Shared States (Real-time synchronization between Student App & Admin Panel)
   const [books, setBooks] = useState<Book[]>(INITIAL_BOOKS);
@@ -63,7 +66,10 @@ export default function App() {
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
     devices: [
       { id: 'dev-1', name: 'Telemóvel do Aluno (Este)', type: 'Android', lastActive: 'Hoje', isAuthorized: true }
-    ]
+    ],
+    xp: 120,
+    badges: ['primeiro-passo'],
+    completedBooks: []
   });
 
   // Offline status simulation inside student applet
@@ -78,11 +84,76 @@ export default function App() {
   // Core functions to sync back-office changes with student catalog
   const handleAddBook = (newBook: Book) => {
     setBooks(prev => [newBook, ...prev]);
+
+    // Track in audit log
+    const logId = `log-${Date.now()}`;
+    const actorEmail = auth.currentUser?.email || 'admin@imstud.co.ao';
+    const actorUid = auth.currentUser?.uid || 'system';
+    const timestamp = new Date().toISOString();
+    const details = `Adicionado o livro "${newBook.title}" por ${newBook.author} para a ${newBook.classLevel}.`;
+
+    if (auth.currentUser) {
+      // Sync book data to books collection in Firestore
+      const bookRef = doc(db, 'books', newBook.id);
+      setDoc(bookRef, newBook)
+        .catch(err => console.error('Error syncing added book to Firestore:', err));
+
+      // Sync audit log to audit_logs collection in Firestore
+      const logRef = doc(db, 'audit_logs', logId);
+      setDoc(logRef, {
+        id: logId,
+        action: 'Adição de Livro',
+        actorEmail,
+        actorUid,
+        details,
+        timestamp,
+        targetId: newBook.id
+      }).catch(err => handleFirestoreError(err, OperationType.WRITE, `audit_logs/${logId}`));
+    }
+
     alert(`Sucesso! O livro "${newBook.title}" foi publicado com sucesso e injetado de imediato na biblioteca escolar móvel do aluno!`);
   };
 
+  const handleImportBook = (newBook: Book) => {
+    setBooks(prev => [newBook, ...prev]);
+
+    if (auth.currentUser) {
+      // Sync imported book data to books collection in Firestore
+      const bookRef = doc(db, 'books', newBook.id);
+      setDoc(bookRef, newBook)
+        .catch(err => console.error('Error syncing imported book to Firestore:', err));
+    }
+  };
+
   const handleDeleteBook = (bookId: string) => {
+    const deletedBook = books.find(b => b.id === bookId);
     setBooks(prev => prev.filter(b => b.id !== bookId));
+
+    // Track in audit log
+    const logId = `log-${Date.now()}`;
+    const actorEmail = auth.currentUser?.email || 'admin@imstud.co.ao';
+    const actorUid = auth.currentUser?.uid || 'system';
+    const timestamp = new Date().toISOString();
+    const details = `Removido o livro "${deletedBook?.title || bookId}" do catálogo.`;
+
+    if (auth.currentUser) {
+      // Delete book from Firestore
+      const bookRef = doc(db, 'books', bookId);
+      deleteDoc(bookRef)
+        .catch(err => console.error('Error deleting book from Firestore:', err));
+
+      // Sync audit log to audit_logs collection in Firestore
+      const logRef = doc(db, 'audit_logs', logId);
+      setDoc(logRef, {
+        id: logId,
+        action: 'Remoção de Livro',
+        actorEmail,
+        actorUid,
+        details,
+        timestamp,
+        targetId: bookId
+      }).catch(err => handleFirestoreError(err, OperationType.WRITE, `audit_logs/${logId}`));
+    }
   };
 
   const handleApprovePayment = (paymentId: string) => {
@@ -103,16 +174,58 @@ export default function App() {
         plan: planCode,
         subscriptionStatus: 'active'
       }));
+
+      if (auth.currentUser) {
+        // Sync updated payment record to payments collection in Firestore
+        const payRef = doc(db, 'payments', paymentId);
+        updateDoc(payRef, { status: 'Confirmado' })
+          .catch(err => console.error('Error syncing approved payment status to Firestore:', err));
+
+        // Create audit log
+        const logId = `log-${Date.now()}`;
+        const actorEmail = auth.currentUser?.email || 'admin@imstud.co.ao';
+        const actorUid = auth.currentUser?.uid || 'system';
+        const timestamp = new Date().toISOString();
+        const details = `Aprovado o pagamento ID "${paymentId}" referente ao plano "${invoice.planName}" no valor de ${invoice.amount} Kz.`;
+
+        const logRef = doc(db, 'audit_logs', logId);
+        setDoc(logRef, {
+          id: logId,
+          action: 'Aprovação de Pagamento',
+          actorEmail,
+          actorUid,
+          details,
+          timestamp,
+          targetId: paymentId
+        }).catch(err => handleFirestoreError(err, OperationType.WRITE, `audit_logs/${logId}`));
+      }
+
       alert(`Depósito Bancário de ${invoice.amount} Kz confirmado! O plano Premium "${invoice.planName}" foi ativado de imediato no telemóvel do estudante.`);
     }
   };
 
   const handleUpdateUser = (updated: Partial<UserProfile>) => {
-    setCurrentUser(prev => ({ ...prev, ...updated }));
+    setCurrentUser(prev => {
+      const nextUser = { ...prev, ...updated };
+      if (auth.currentUser) {
+        const userRef = doc(db, 'users', auth.currentUser.uid);
+        updateDoc(userRef, updated).catch(() => {
+          setDoc(userRef, nextUser, { merge: true }).catch(err => console.error('Firestore user update sync error:', err));
+        });
+      }
+      return nextUser;
+    });
   };
 
   const handleAddPayment = (payment: PaymentRecord) => {
-    setPayments(prev => [payment, ...prev]);
+    setPayments(prev => {
+      const nextPayments = [payment, ...prev];
+      if (auth.currentUser) {
+        const payRef = doc(db, 'payments', payment.id);
+        setDoc(payRef, { ...payment, userId: auth.currentUser.uid }).catch(err => console.error('Firestore payment create sync error:', err));
+      }
+      return nextPayments;
+    });
   };
 
   const handleUpdateBookOfflineStatus = (bookId: string, status: 'none' | 'downloading' | 'downloaded') => {
@@ -170,6 +283,7 @@ export default function App() {
               onUpdateBookOfflineStatus={handleUpdateBookOfflineStatus}
               isOfflineSystemMode={isOfflineSystemMode}
               setIsOfflineSystemMode={setIsOfflineSystemMode}
+              onImportBook={handleImportBook}
             />
           </motion.div>
 

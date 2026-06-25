@@ -11,9 +11,9 @@ export const SUBSCRIPTION_PLANS = [
     name: 'Plano Básico',
     price: 500,
     period: 'Mês',
-    classes: ['5ª Classe', '6ª Classe'],
-    description: 'Acesso completo aos livros do Ensino Primário.',
-    features: ['Acesso a todos os livros do Primário', 'Leitura offline em 1 dispositivo', 'Marcação de favoritos', 'Sem anúncios'],
+    classes: ['Iniciação (Pré-escolar)', '1ª Classe', '2ª Classe', '3ª Classe', '4ª Classe', '5ª Classe', '6ª Classe'],
+    description: 'Acesso completo aos manuais do Ensino Primário (Iniciação até a 5ª/6ª Classe).',
+    features: ['Iniciação (Pré), 1ª, 2ª, 3ª, 4ª e 5ª Classe', 'Acesso a todos os livros do Primário', 'Leitura offline em 1 dispositivo', 'Sem anúncios'],
     color: 'from-blue-600 to-indigo-700'
   },
   {
@@ -50,6 +50,99 @@ export const SUBSCRIPTION_PLANS = [
 
 export const INITIAL_BOOKS: Book[] = [
   {
+    id: 'book-init-0',
+    title: 'Caderno de Iniciação à Escrita - Iniciação',
+    author: 'Ministério da Educação de Angola',
+    classLevel: 'Iniciação (Pré-escolar)',
+    subject: 'Língua Portuguesa',
+    coverBg: 'bg-teal-900',
+    accentColor: '#14b8a6',
+    summary: 'Atividades lúdicas para desenvolvimento da motricidade fina, reconhecimento de vogais e números de 1 a 10 para crianças na fase de iniciação e pré-escolar.',
+    pages: [
+      'Capítulo 1: O Caminho dos Desenhos.\n\nBem-vindo ao livro de Iniciação e Pré-escolar de Angola!\n\nHoje vamos aprender a desenhar linhas retas e curvas. Segura no teu lápis com cuidado e ajuda a abelha a voar até à flor!\n\nDesenha no teu caderno:\n1. Linha reta: -----------------------\n2. Linha curva: ~~~~~~~~~~~~~~~~~~~~\n\nMuito bem!',
+      'Capítulo 2: Conhecendo as Vogais.\n\nAs vogais são as letras mágicas que ajudam a formar todas as palavras.\n\nVamos ler juntos em voz alta:\nA - de Angola!\nE - de Escola!\nI - de Imstud!\nO - de Ouro!\nU - de União!'
+    ],
+    isPremium: false,
+    rating: 4.9,
+    downloads: 3201,
+    offlineStatus: 'none',
+    isbn: '978-989-1-00001-1',
+    publisher: 'Editora Escolar Angola',
+    year: 2025
+  },
+  {
+    id: 'book-init-1',
+    title: 'Livro de Leitura e Escrita - 1ª Classe',
+    author: 'Dra. Isabel Leopoldino',
+    classLevel: '1ª Classe',
+    subject: 'Língua Portuguesa',
+    coverBg: 'bg-pink-900',
+    accentColor: '#ec4899',
+    summary: 'Método fonético e silábico de alfabetização para estudantes da primeira classe em Angola, com ilustrações cativantes.',
+    pages: [
+      'Página 1: Alfabetização Ilustrada de Leitura',
+      'Página 2: Exercícios de Caligrafia Prática'
+    ],
+    format: 'images',
+    pageImages: [
+      'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=80'
+    ],
+    isPremium: false,
+    rating: 4.8,
+    downloads: 2450,
+    offlineStatus: 'none',
+    isbn: '978-989-1-00002-2',
+    publisher: 'Editora Escolar Angola',
+    year: 2024
+  },
+  {
+    id: 'book-init-3',
+    title: 'Manual de Estudo do Meio - 3ª Classe',
+    author: 'Prof. Laurindo Kassanga',
+    classLevel: '3ª Classe',
+    subject: 'Estudo do Meio',
+    coverBg: 'bg-lime-900',
+    accentColor: '#84cc16',
+    summary: 'Aborda a higiene, família, comunidade angolana, noções de história local e ciências naturais simples da terceira classe.',
+    pages: [
+      'Página 1: A Nossa Família e a Comunidade',
+      'Página 2: História e Geografia de Angola'
+    ],
+    format: 'images',
+    pageImages: [
+      'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800&auto=format&fit=crop&q=80'
+    ],
+    isPremium: true,
+    rating: 4.7,
+    downloads: 1200,
+    offlineStatus: 'none',
+    isbn: '978-989-1-00003-3',
+    publisher: 'Editora Escolar Angola',
+    year: 2025
+  },
+  {
+    id: 'book-init-5',
+    title: 'Livro de Matemática Prática - 5ª Classe',
+    author: 'Ministério da Educação de Angola',
+    classLevel: '5ª Classe',
+    subject: 'Matemática',
+    coverBg: 'bg-amber-900',
+    accentColor: '#f59e0b',
+    summary: 'Adição, subtração, multiplicação e divisão avançada, frações simples e figuras geométricas para o final do ensino primário.',
+    pages: [
+      'Capítulo 1: Multiplicação e Divisão de Números Inteiros.\n\nA matemática ajuda-nos nas contas do dia a dia, como na feira ou na mercearia!\n\nExercício:\nSe uma caixa contém 12 cadernos escolares e compramos 5 caixas para a nossa turma, quantos cadernos temos no total?\n\nCálculo: 12 * 5 = 60 cadernos escolares.'
+    ],
+    isPremium: true,
+    rating: 4.6,
+    downloads: 1400,
+    offlineStatus: 'none',
+    isbn: '978-989-1-00005-5',
+    publisher: 'Texto Editores Angola',
+    year: 2024
+  },
+  {
     id: 'book-1',
     title: 'Manuais de Matemática - 7ª Classe',
     author: 'Ministério da Educação de Angola',
@@ -70,7 +163,8 @@ export const INITIAL_BOOKS: Book[] = [
     offlineStatus: 'none',
     isbn: '978-972-0-31234-1',
     publisher: 'Editora Escolar Angola',
-    year: 2024
+    year: 2024,
+    pdfUrl: 'https://ia800203.us.archive.org/20/items/manual_quimica_angola/manual_quimica_angola.pdf'
   },
   {
     id: 'book-2',
@@ -92,7 +186,8 @@ export const INITIAL_BOOKS: Book[] = [
     offlineStatus: 'none',
     isbn: '978-989-1-12435-2',
     publisher: 'Texto Editores Angola',
-    year: 2023
+    year: 2023,
+    epubUrl: 'https://www.w3.org/publishing/epub3/epub-spec.epub'
   },
   {
     id: 'book-3',

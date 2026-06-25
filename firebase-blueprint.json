@@ -1,0 +1,92 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "classLevel": { "type": "string" },
+        "plan": { "type": "string" },
+        "subscriptionStatus": { "type": "string" },
+        "joinedDate": { "type": "string" },
+        "avatar": { "type": "string" }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "Book": {
+      "title": "Book",
+      "description": "Educational book",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "classLevel": { "type": "string" },
+        "subject": { "type": "string" },
+        "coverBg": { "type": "string" },
+        "accentColor": { "type": "string" },
+        "summary": { "type": "string" },
+        "pages": { "type": "array" },
+        "isPremium": { "type": "boolean" },
+        "rating": { "type": "number" },
+        "downloads": { "type": "number" },
+        "isbn": { "type": "string" },
+        "publisher": { "type": "string" },
+        "year": { "type": "integer" }
+      },
+      "required": ["id", "title", "author", "classLevel"]
+    },
+    "PaymentRecord": {
+      "title": "PaymentRecord",
+      "description": "Subscription payment history record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "planName": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string" },
+        "method": { "type": "string" },
+        "status": { "type": "string" },
+        "reference": { "type": "string" }
+      },
+      "required": ["id", "planName", "amount", "status", "reference"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Records critical administrative panel actions for security audit",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "type": "string" },
+        "actorEmail": { "type": "string" },
+        "actorUid": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "targetId": { "type": "string" }
+      },
+      "required": ["id", "action", "actorEmail", "details", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Authenticated user profiles"
+    },
+    "/books/{bookId}": {
+      "schema": "Book",
+      "description": "Books catalog"
+    },
+    "/payments/{paymentId}": {
+      "schema": "PaymentRecord",
+      "description": "Payment transactions for subscriptions"
+    },
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Security audit logs for admin actions"
+    }
+  }
+}
