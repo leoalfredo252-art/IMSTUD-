@@ -1,0 +1,6 @@
+{
+  "name": "IMSTUD",
+  "description": "Innovation and Mastery Study - Plataforma de democratização de livros didáticos em Angola.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
